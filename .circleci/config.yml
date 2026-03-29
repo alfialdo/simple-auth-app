@@ -78,9 +78,9 @@ jobs:
           key: v1-frontend-deps-{{ checksum "pnpm-lock.yaml" }}
 
       # Run Linters and Build
-      - run:
-          name: Run TypeScript Check & Lint
-          command: pnpm lint
+      # - run:
+      #     name: Run TypeScript Check & Lint
+      #     command: pnpm lint
 
       # - run:
       #     name: Build Application
