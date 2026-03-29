@@ -51,9 +51,9 @@ jobs:
             export PATH="$HOME/.cargo/bin:$PATH"
             uv run pytest
 
-  test-frontend:
+  test-be:
     executor: node-env
-    working_directory: ~/project/frontend
+    working_directory: ~/project/simple-auth-fe
     steps:
       - checkout:
           path: ~/project
@@ -90,5 +90,5 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - test-backend
-      - test-frontend
+      - test-be
+      - test-fe
