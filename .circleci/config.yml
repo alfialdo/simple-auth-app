@@ -51,7 +51,7 @@ jobs:
             export PATH="$HOME/.cargo/bin:$PATH"
             uv run pytest
 
-  test-be:
+  test-fe:
     executor: node-env
     working_directory: ~/project/simple-auth-fe
     steps:
