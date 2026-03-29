@@ -45,11 +45,11 @@ jobs:
             export PATH="$HOME/.cargo/bin:$PATH"
             uv run ruff check .
 
-      # - run:
-      #     name: Run Tests (Pytest)
-      #     command: |
-      #       export PATH="$HOME/.cargo/bin:$PATH"
-      #       uv run pytest
+      - run:
+          name: Run Tests (Pytest)
+          command: |
+            export PATH="$HOME/.cargo/bin:$PATH"
+            uv run pytest
 
   test-fe:
     executor: node-env
