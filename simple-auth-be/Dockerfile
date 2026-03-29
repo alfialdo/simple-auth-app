@@ -2,6 +2,8 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 # Install system dependencies 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	gcc \
@@ -14,10 +16,10 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Copy dependencies
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock ./
 
 # Install dependencies via uv 
-RUN uv sync --dev
+RUN uv sync --dev --frozen
 
 # No COPY for dev purposes use volume mount
 # Start Uvicorn serice on 0.0.0.0:8080 for host

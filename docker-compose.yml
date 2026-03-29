@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16-alpine
@@ -31,7 +29,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./simple-auth-be:/app # Bind mount for instant Uvicorn reloads
+      - ./simple-auth-be:/app # Bind mount for Uvicorn reloads
+      - /app/.venv
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secret}@db:5432/${POSTGRES_DB:-auth_db}
       - CORS_ORIGINS=http://localhost:3000
@@ -49,7 +48,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./simple-auth-fe:/app # Bind mount for instant Vite HMR
+      - ./simple-auth-fe:/app # Bind mount for Vite HMR
       - /app/node_modules # Prevents overwriting node_modules
     environment:
       - VITE_API_URL=http://localhost:8080
