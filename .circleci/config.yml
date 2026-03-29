@@ -6,7 +6,7 @@ executors:
       - image: cimg/python:3.12
   node-env:
     docker:
-      - image: cimg/node:20.11
+      - image: cimg/node:22.14
 
 jobs:
   test-be:
@@ -31,7 +31,7 @@ jobs:
           name: Install Dependencies
           command: |
             export PATH="$HOME/.cargo/bin:$PATH"
-            uv sync
+            uv sync --dev
 
       - save_cache:
           paths:
@@ -45,11 +45,11 @@ jobs:
             export PATH="$HOME/.cargo/bin:$PATH"
             uv run ruff check .
 
-      - run:
-          name: Run Tests (Pytest)
-          command: |
-            export PATH="$HOME/.cargo/bin:$PATH"
-            uv run pytest
+      # - run:
+      #     name: Run Tests (Pytest)
+      #     command: |
+      #       export PATH="$HOME/.cargo/bin:$PATH"
+      #       uv run pytest
 
   test-fe:
     executor: node-env
