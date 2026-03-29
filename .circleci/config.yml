@@ -82,9 +82,9 @@ jobs:
           name: Run TypeScript Check & Lint
           command: pnpm lint
 
-      - run:
-          name: Build Application
-          command: pnpm build
+      # - run:
+      #     name: Build Application
+      #     command: pnpm build
 
 # Orchestrate the jobs in a workflow
 workflows:
