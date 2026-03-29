@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: auth-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-auth_db}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-auth_db}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./simple-auth-be
+      dockerfile: Dockerfile
+    container_name: auth-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./simple-auth-be:/app # Bind mount for instant Uvicorn reloads
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secret}@db:5432/${POSTGRES_DB:-auth_db}
+      - CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal-net
+
+  ui:
+    build:
+      context: ./simple-auth-fe
+      dockerfile: Dockerfile
+    container_name: auth-ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./simple-auth-fe:/app # Bind mount for instant Vite HMR
+      - /app/node_modules # Prevents overwriting node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    networks:
+      - internal-net
+
+volumes:
+  pgdata:
+
+networks:
+  internal-net:
+    driver: bridge
