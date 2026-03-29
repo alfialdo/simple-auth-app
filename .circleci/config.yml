@@ -1,0 +1,94 @@
+version: 2.1
+
+executors:
+  python-env:
+    docker:
+      - image: cimg/python:3.12
+  node-env:
+    docker:
+      - image: cimg/node:20.11
+
+jobs:
+  test-be:
+    executor: python-env
+    working_directory: ~/project/simple-auth-be
+    steps:
+      # Pull the code from Git
+      - checkout:
+          path: ~/project
+
+      # Install uv
+      - run:
+          name: Install uv
+          command: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - restore_cache:
+          keys:
+            - v1-backend-deps-{{ checksum "uv.lock" }}
+
+      # Install dependencies
+      - run:
+          name: Install Dependencies
+          command: |
+            export PATH="$HOME/.cargo/bin:$PATH"
+            uv sync
+
+      - save_cache:
+          paths:
+            - .venv
+          key: v1-backend-deps-{{ checksum "uv.lock" }}
+
+      # Run Linters and Tests
+      - run:
+          name: Run Linter (Ruff)
+          command: |
+            export PATH="$HOME/.cargo/bin:$PATH"
+            uv run ruff check .
+
+      - run:
+          name: Run Tests (Pytest)
+          command: |
+            export PATH="$HOME/.cargo/bin:$PATH"
+            uv run pytest
+
+  test-frontend:
+    executor: node-env
+    working_directory: ~/project/frontend
+    steps:
+      - checkout:
+          path: ~/project
+
+      # Enable pnpm
+      - run:
+          name: Enable pnpm
+          command: sudo corepack enable pnpm
+
+      - restore_cache:
+          keys:
+            - v1-frontend-deps-{{ checksum "pnpm-lock.yaml" }}
+
+      # Install dependencies
+      - run:
+          name: Install Dependencies
+          command: pnpm install --frozen-lockfile
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-frontend-deps-{{ checksum "pnpm-lock.yaml" }}
+
+      # Run Linters and Build
+      - run:
+          name: Run TypeScript Check & Lint
+          command: pnpm lint
+
+      - run:
+          name: Build Application
+          command: pnpm build
+
+# Orchestrate the jobs in a workflow
+workflows:
+  build-and-test:
+    jobs:
+      - test-backend
+      - test-frontend
